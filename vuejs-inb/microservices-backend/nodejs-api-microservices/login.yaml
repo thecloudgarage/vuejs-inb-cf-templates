@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "NodeJS LoginMicroService for OmniBanking"
+Parameters:
+  VpcName:
+    Type: String
+  ZoneName:
+    Type: String
+  MongoDBHost:
+    Type: String
+  KeyName:
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+Resources:
+  LoginMicroService:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-0c6b1d09930fac512"
+      InstanceType: "t2.micro"
+      KeyName:
+        Ref: KeyName
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcName}-AppSubnet-${ZoneName}'}
+      SecurityGroupIds: [{'Fn::ImportValue': !Sub '${VpcName}-sg-alltraffic'}]
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash
+                #setting up variables for nvm installation in bashrc
+                echo 'export NVM_DIR="/.nvm"' >> ~/.bashrc
+                echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
+                source ~/.bashrc
+                #downloading nvm installation scripts
+                curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
+                #purposely need to reload nvm.sh as the above install.sh exits with an error and nvm.sh does not run
+                source /.nvm/nvm.sh
+                #installing nodejs
+                nvm install 8.9
+                node -e "console.log('Running Node.js ' + process.version)"
+                #downloading our application code from git and installing node packages
+                yum install -y git
+                cd /home/ec2-user
+                git clone https://github.com/thecloudgarage/vuejs-inb.git
+                mkdir -p login
+                mv /home/ec2-user/vuejs-inb/microservices-backend/nodejs-api-microservices/login/* /home/ec2-user/login/
+                rm -rf /home/ec2-user/vuejs-inb
+                cd /home/ec2-user/login
+                #install the node modules
+                npm install
+                #create environmental variables
+                touch .env
+                echo MONGODB_URI=mongodb://${MongoDBHost}/personal_banking >> .env
+                echo PORT=3000 >> .env
+                echo SECRET=secret >> .env
+                #starting our app as a background process
+                nohup npm start
+      Tags:
+      - Key: Name
+        Value: !Sub '${VpcName}-LoginMicroService'
+Outputs:
+  AppEc2IP:
+    Description: "IP address of the LoginMicroService"
+    Value: !GetAtt "LoginMicroService.PublicIp"
+    Export:
+      Name:
+        !Sub "${VpcName}-LoginMicroService-Address"

@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "VueJS client for INB application"
+Parameters:
+  VpcName:
+    Type: String
+  ZoneName:
+    Type: String
+  ApiHostBalance:
+    Type: String
+  ApiHostFeedback:
+    Type: String
+  ApiHostForgot:
+    Type: String
+  ApiHostLogin:
+    Type: String
+  ApiHostPassword:
+    Type: String
+  ApiHostPayee:
+    Type: String
+  ApiHostReset:
+    Type: String
+  ApiHostTransfer:
+    Type: String
+  ApiHostUser:
+    Type: String
+  KeyName:
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+Resources:
+  VueJsClient:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-0c6b1d09930fac512"
+      InstanceType: "t2.micro"
+      KeyName:
+        Ref: KeyName
+      SubnetId: {'Fn::ImportValue': !Sub '${VpcName}-WebSubnet-${ZoneName}'}
+      SecurityGroupIds: [{'Fn::ImportValue': !Sub '${VpcName}-sg-alltraffic'}]
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash
+                #setting up variables for nvm installation in bashrc
+                echo 'export NVM_DIR="/.nvm"' >> ~/.bashrc
+                echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
+                source ~/.bashrc
+                #downloading nvm installation scripts
+                curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
+                #purposely need to reload nvm.sh as the above install.sh exits with an error and nvm.sh does not run
+                source /.nvm/nvm.sh
+                #installing nodejs
+                nvm install 8.9
+                node -e "console.log('Running Node.js ' + process.version)"
+                #downloading our application code from git and installing node packages
+                yum install -y git
+                yum install -y httpd
+                service httpd start
+                chkconfig httpd on
+                cd /home/ec2-user
+                git clone https://github.com/thecloudgarage/vuejs-inb.git
+                mkdir -p vuejs-client
+                mv /home/ec2-user/vuejs-inb/vuejs-client/* /home/ec2-user/vuejs-client/
+                rm -rf /home/ec2-user/vuejs-inb
+                cd /home/ec2-user/vuejs-client
+                #install the node modules
+                npm install
+                sed -i 's/ApiHostBalance/'${ApiHostBalance}'/g' webpack.prod.js
+                sed -i 's/ApiHostFeedback/'${ApiHostFeedback}'/g' webpack.prod.js
+                sed -i 's/ApiHostForgot/'${ApiHostForgot}'/g' webpack.prod.js
+                sed -i 's/ApiHostLogin/'${ApiHostLogin}'/g' webpack.prod.js
+                sed -i 's/ApiHostPassword/'${ApiHostPassword}'/g' webpack.prod.js
+                sed -i 's/ApiHostPayee/'${ApiHostPayee}'/g' webpack.prod.js
+                sed -i 's/ApiHostReset/'${ApiHostReset}'/g' webpack.prod.js
+                sed -i 's/ApiHostTransfer/'${ApiHostTransfer}'/g' webpack.prod.js
+                sed -i 's/ApiHostUser/'${ApiHostUser}'/g' webpack.prod.js
+                npm run build-prod
+                cd /home/ec2-user/vuejs-client/dist
+                mv * /var/www/html
+      Tags:
+      - Key: Name
+        Value: !Sub '${VpcName}-VueJsClient'
+Outputs:
+  AppEc2IP:
+    Description: "IP address of the VueJS Client"
+    Value: !GetAtt "VueJsClient.PublicIp"
+    Export:
+      Name:
+        !Sub "${VpcName}-VueJsClient"

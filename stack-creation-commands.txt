@@ -1,0 +1,29 @@
+aws cloudformation create-stack --stack-name mongo --template-body file:///home/testuser/mytemplate.json --parameters ParameterKey=Parm1,ParameterValue=test1 ParameterKey=Parm2,ParameterValue=test2
+
+aws cloudformation create-stack --stack-name mongo --template-body file://mongodb.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA
+
+aws cloudformation create-stack --stack-name register --template-body file://register.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name login --template-body file://login.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name balance --template-body file://balance.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name payee --template-body file://payee.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name transfer --template-body file://transfer.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name password --template-body file://password.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name forgot --template-body file://forgot.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name reset --template-body file://reset.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name feedback --template-body file://feedback.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=MongoDBHost,ParameterValue=184.72.151.35
+
+aws cloudformation create-stack --stack-name vuejs-client --template-body file://vuejs-client.yaml --parameters ParameterKey=KeyName,ParameterValue=nv ParameterKey=VpcName,ParameterValue=testvpc ParameterKey=ZoneName,ParameterValue=ZoneA ParameterKey=ApiHostUser,ParameterValue=3.89.75.182 ParameterKey=ApiHostLogin,ParameterValue=54.172.210.133 ParameterKey=ApiHostBalance,ParameterValue=52.91.17.7 ParameterKey=ApiHostPayee,ParameterValue=54.144.208.233 ParameterKey=ApiHostTransfer,ParameterValue=3.89.120.1 ParameterKey=ApiHostPassword,ParameterValue=54.224.241.232 ParameterKey=ApiHostForgot,ParameterValue=52.90.61.128 ParameterKey=ApiHostReset,ParameterValue=52.90.61.128 ParameterKey=ApiHostFeedback,ParameterValue=18.207.244.22
+
+
+
+
+
+
